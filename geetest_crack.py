@@ -8,6 +8,7 @@ from selenium.webdriver.common.by import By
 from pymouse import PyMouse
 import random
 import time
+import json
 import multiprocessing
 
 class GeetestCracker:
@@ -37,28 +38,53 @@ class GeetestCracker:
     mouse.click(locx, locy)
 # '//*[@id="pro-operation"]/a'
 
-def worker(url):
-  driver = webdriver.Chrome()
-  driver.get(url)
-  # driver.find_element_by_xpath('//*[@id="pro-operation"]/a/span').click()
-  lgn_link = WebDriverWait(driver, 10, 0.01).until(
-    EC.element_to_be_clickable((By.XPATH, '//*[@id="top-index-loginUrl"]')))
-  lgn_link.click()
-  geetest_btn = WebDriverWait(driver, 50, 0.01).until(EC.presence_of_element_located((By.XPATH, '//*[@id="captcha1"]/div[2]/div[2]/div[1]/div[3]')))
-  gtc = GeetestCracker(driver)
-  gtc.MouseMoveSim(geetest_btn)
-  user = driver.find_element_by_xpath('//*[@id="login_userName"]')
-  user.clear()
-  user.send_keys("15850740010")
-  passwd = driver.find_element_by_xpath('//*[@id="login_password"]')
-  passwd.clear()
-  passwd.send_keys('Hobot123.')
-  driver.find_element_by_xpath('//*[@id="btnLogin"]').click()
-  buy_btn = WebDriverWait(driver, 100, 0.001).until(
-    EC.element_to_be_clickable((By.XPATH, '//*[@id="pro-operation"]/a')))
-  buy_btn.click()
+def LoadCoockie(driver, fname):
+  with open(fname) as cf:
+    cookies = json.load(cf)
+    for cookie in cookies:
+      print(cookie)
+      driver.add_cookie(cookie)
+
+def GetCookie(ck_file):
+  with open(ck_file, "w") as ck:
+    cookie = driver.get_cookies()
+    json.dump(cookie, ck)
+
 
 if __name__ == "__main__":
-  url = 'https://www.vmall.com/product/173840389.html'
-  worker(url)
+  ck_file = "cookie.tmp"
+  product_url = 'https://www.vmall.com/product/173840389.html'
+  epoch = time.mktime(time.strptime("2017-12-08 10:08:00", "%Y-%m-%d %H:%M:%S"))
+  print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(epoch)))
+  buy_url = "https://sale.vmall.com/mate10pd.html?mainSku=81139976&backUrl=https%3A%2F%2Fwww.vmall.com%2Fproduct%2F173840389.html%2381139976&_t="
+  buy_url += str(int(epoch*1000 + random.randint(2, 6)));
+  print(buy_url)
+  driver = webdriver.Chrome()
+  driver.get(product_url)
+  time.sleep(120)
+  GetCookie(ck_file)
+  LoadCoockie(driver, ck_file);
+  driver.get(product_url)
 
+  while (time.time() < epoch - 2):
+    pass
+
+  driver.get(buy_url)
+  # GetCookie()
+  # driver.find_element_by_xpath('//*[@id="pro-operation"]/a/span').click()
+  # lgn_link = WebDriverWait(driver, 10, 0.01).until(
+  #   EC.element_to_be_clickable((By.XPATH, '//*[@id="top-index-loginUrl"]')))
+  # lgn_link.click()
+  # geetest_btn = WebDriverWait(driver, 50, 0.01).until(EC.presence_of_element_located((By.XPATH, '//*[@id="captcha1"]/div[2]/div[2]/div[1]/div[3]')))
+  # gtc = GeetestCracker(driver)
+  # gtc.MouseMoveSim(geetest_btn)
+  # user = driver.find_element_by_xpath('//*[@id="login_userName"]')
+  # user.clear()
+  # user.send_keys("15850740010")
+  # passwd = driver.find_element_by_xpath('//*[@id="login_password"]')
+  # passwd.clear()
+  # passwd.send_keys('Hobot123.')
+  # driver.find_element_by_xpath('//*[@id="btnLogin"]').click()
+  # buy_btn = WebDriverWait(driver, 100, 0.001).until(
+  #   EC.element_to_be_clickable((By.XPATH, '//*[@id="pro-operation"]/a')))
+  # buy_btn.click()
