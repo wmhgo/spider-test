@@ -24,7 +24,7 @@ def GoBuy(product_url, cookies, buy_time, i):
   if re.match("Linux", os_type):
     ua = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36"
   elif re.match("Windows", os_type):
-    ua = ""
+    ua = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36"
 
   # 设置useragent
   dcap["phantomjs.page.settings.userAgent"] = ua
