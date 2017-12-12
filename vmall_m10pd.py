@@ -16,7 +16,7 @@ import sys
 
 # epoch = time.mktime(time.strptime("2017-12-13 10:08:00", "%Y-%m-%d %H:%M:%S"))
 
-def GoBuy(product_url, cookies, buy_time):
+def GoBuy(product_url, cookies, buy_time, i):
   dcap = dict(DesiredCapabilities.PHANTOMJS)
 
   ua = ""
@@ -49,8 +49,9 @@ def GoBuy(product_url, cookies, buy_time):
   buy_url += str(int(buy_time*1000 + random.randint(0, 10)))
   print(buy_url)
   driver.get(buy_url)
-  # driver.save_screenshot("prd.png")
   print("done")
+  time.sleep(3)
+  driver.save_screenshot("%02d.png" % i)
   time.sleep(600)
 
 def GetBuyTime():
@@ -76,7 +77,7 @@ if __name__ == "__main__":
 
   record = []
   for i in range(10):
-    proc = multiprocessing.Process(target = GoBuy, args = (product_url, driver.get_cookies(), buy_time))
+    proc = multiprocessing.Process(target = GoBuy, args = (product_url, driver.get_cookies(), buy_time, i))
     proc.start()
     record.append(proc)
 
