@@ -34,10 +34,7 @@ def GoBuy(product_url, cookies, buy_time):
   # service_args = ['--proxy=127.0.0.1:9999', '--proxy-type=socks5']
   # 打开带配置信息的phantomJS浏览器
   driver = webdriver.PhantomJS(desired_capabilities=dcap)
-  buy_url = "https://sale.vmall.com/mate10pd.html?mainSku=81139976&backUrl" \
-            "=https%3A%2F%2Fwww.vmall.com%2Fproduct%2F173840389.html%2381139976&_t="
-  buy_url += str(int(buy_time*1000 + random.randint(0, 10)))
-  print(buy_url)
+
   driver.get(product_url)
   for ck in cookies:
     driver.add_cookie(ck)
@@ -47,6 +44,10 @@ def GoBuy(product_url, cookies, buy_time):
     print("now:%d, buy_time:%d" % (time.time()*1000, buy_time * 1000))
     time.sleep(.001)
 
+  buy_url = "https://sale.vmall.com/mate10pd.html?mainSku=81139976&backUrl" \
+            "=https%3A%2F%2Fwww.vmall.com%2Fproduct%2F173840389.html%2381139976&_t="
+  buy_url += str(int(buy_time*1000 + random.randint(0, 10)))
+  print(buy_url)
   driver.get(buy_url)
   # driver.save_screenshot("prd.png")
   print("done")
@@ -74,7 +75,7 @@ if __name__ == "__main__":
                                          "即将开始"))
 
   record = []
-  for i in range(1):
+  for i in range(10):
     proc = multiprocessing.Process(target = GoBuy, args = (product_url, driver.get_cookies(), buy_time))
     proc.start()
     record.append(proc)
