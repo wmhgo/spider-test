@@ -52,8 +52,8 @@ def GoBuy(product_url, cookies, buy_time, i):
 
   driver.get(buy_url)
   print("done")
-  for x in range(3):
-    time.sleep(20)
+  for x in range(5):
+    time.sleep(10)
     driver.save_screenshot("%02d_%d.png" % (i, x))
   time.sleep(600)
 
