@@ -34,24 +34,27 @@ def GoBuy(product_url, cookies, buy_time, i):
   # service_args = ['--proxy=127.0.0.1:9999', '--proxy-type=socks5']
   # 打开带配置信息的phantomJS浏览器
   driver = webdriver.PhantomJS(desired_capabilities=dcap)
+  # driver = webdriver.Chrome()
 
   driver.get(product_url)
   for ck in cookies:
     driver.add_cookie(ck)
   # driver.get(product_url)
 
+  buy_url = "https://sale.vmall.com/mate10pd.html?mainSku=81139976&backUrl" \
+            "=https%3A%2F%2Fwww.vmall.com%2Fproduct%2F173840389.html%2381139976&_t="
+  buy_url += str(int(buy_time * 1000 + random.randint(0, 50)))
+  print(buy_url)
+
   while (time.time() * 1000 < buy_time * 1000):
     print("now:%d, buy_time:%d" % (time.time()*1000, buy_time * 1000))
     time.sleep(.001)
 
-  buy_url = "https://sale.vmall.com/mate10pd.html?mainSku=81139976&backUrl" \
-            "=https%3A%2F%2Fwww.vmall.com%2Fproduct%2F173840389.html%2381139976&_t="
-  buy_url += str(int(buy_time*1000 + random.randint(0, 10)))
-  print(buy_url)
   driver.get(buy_url)
   print("done")
-  time.sleep(3)
-  driver.save_screenshot("%02d.png" % i)
+  for x in range(3):
+    time.sleep(20)
+    driver.save_screenshot("%02d_%d.png" % (i, x))
   time.sleep(600)
 
 def GetBuyTime():
@@ -72,11 +75,12 @@ if __name__ == "__main__":
   driver.delete_all_cookies()
   driver.get(product_url)
   driver.maximize_window()
-  WebDriverWait(driver, 500, 0.01).until(EC.text_to_be_present_in_element((By.XPATH, '//*[@id="pro-operation"]/a'),
-                                         "即将开始"))
+  time.sleep(30)
+  # WebDriverWait(driver, 500, 0.01).until(EC.text_to_be_present_in_element((By.XPATH, '//*[@id="pro-operation"]/a'),
+                                         # "即将开始"))
 
   record = []
-  for i in range(10):
+  for i in range(20):
     proc = multiprocessing.Process(target = GoBuy, args = (product_url, driver.get_cookies(), buy_time, i))
     proc.start()
     record.append(proc)
