@@ -6,7 +6,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
-# from selenium.common.exceptions import WebDriverException
+from selenium.common.exceptions import WebDriverException
 import random
 import time
 import multiprocessing
@@ -16,7 +16,7 @@ import sys
 
 # epoch = time.mktime(time.strptime("2017-12-13 10:08:00", "%Y-%m-%d %H:%M:%S"))
 
-def GoBuy(product_url, cookies, buy_time, i):
+def GoBuy(product_url, cookies, buy_time, i, try_times):
   dcap = dict(DesiredCapabilities.PHANTOMJS)
 
   ua = ""
@@ -46,16 +46,20 @@ def GoBuy(product_url, cookies, buy_time, i):
   buy_url += str(int(buy_time * 1000 + random.randint(0, 50)))
   print(buy_url)
 
-  while (time.time() * 1000 < buy_time * 1000):
+  while (time.time() * 1000 < buy_time * 1000 + (i - try_times // 2)*10):
     print("now:%d, buy_time:%d" % (time.time()*1000, buy_time * 1000))
     time.sleep(.001)
 
   driver.get(buy_url)
   print("done")
-  for x in range(5):
-    time.sleep(10)
-    driver.save_screenshot("%02d_%d.png" % (i, x))
-  time.sleep(600)
+
+  try:
+    WebDriverWait(driver, 240, 0.01).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="submit_order_button"]'))).click()
+  except WebDriverException as e:
+    print("抢购失败...")
+  else:
+    for i in range(100):
+      print("抢购成功...")
 
 def GetBuyTime():
   cur_tm = time.localtime()
@@ -75,13 +79,14 @@ if __name__ == "__main__":
   driver.delete_all_cookies()
   driver.get(product_url)
   driver.maximize_window()
-  time.sleep(30)
-  # WebDriverWait(driver, 500, 0.01).until(EC.text_to_be_present_in_element((By.XPATH, '//*[@id="pro-operation"]/a'),
-                                         # "即将开始"))
+  # time.sleep(30)
+  WebDriverWait(driver, 500, 0.01).until(EC.text_to_be_present_in_element((By.XPATH, '//*[@id="pro-operation"]/a'),
+                                         "即将开始"))
 
+  try_times = 50
   record = []
-  for i in range(20):
-    proc = multiprocessing.Process(target = GoBuy, args = (product_url, driver.get_cookies(), buy_time, i))
+  for i in range(try_times):
+    proc = multiprocessing.Process(target = GoBuy, args = (product_url, driver.get_cookies(), buy_time, i, try_times))
     proc.start()
     record.append(proc)
 
